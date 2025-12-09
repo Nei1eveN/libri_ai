@@ -9,28 +9,30 @@ import 'package:libri_ai/src/core/theme/app_palette.dart';
 import 'package:libri_ai/src/features/books/domain/book.dart';
 import 'package:libri_ai/src/features/home/presentation/home_providers.dart';
 
-// 1. Change to ConsumerWidget
+
 class HomeBentoGrid extends ConsumerWidget {
   const HomeBentoGrid({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // 2. Watch the data
     final trendingAsync = ref.watch(trendingBooksProvider);
 
-    // 3. Watch the local saved books
+    // local saved books
     final savedBooksAsync = ref.watch(savedBooksStreamProvider);
 
     // Default empty values
     final books = savedBooksAsync.valueOrNull ?? [];
     final savedCount = books.where((b) => b.id != 'welcome_guide').length;
-    Book? lastSavedBook = books.firstWhere(
-      (b) => b.id != 'welcome_guide', 
-      orElse: () => books.firstOrNull as Book, // Fallback to Welcome if nothing else exists
-    );
+    // Look for a "Real" book (anything that isn't the guide)
+    final realBook = books
+        .where((b) => b.id != 'welcome_guide')
+        .firstOrNull; // Returns null if none found, doesn't crash
+    
+    // Fallback to ANY book (likely the Welcome Guide)
+    final anyBook = books.firstOrNull;
 
-    // Safety check: If the list is empty, lastSavedBook is null
-    if (books.isEmpty) lastSavedBook = null;
+    // Decide: Real Book > Welcome Guide > Null (Empty)
+    final lastSavedBook = realBook ?? anyBook;
 
     return SliverToBoxAdapter(
       child: StaggeredGrid.count(
@@ -106,7 +108,7 @@ class HomeBentoGrid extends ConsumerWidget {
                         style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
                   Expanded(
-                    // 3. Handle Loading/Error/Data states
+                    // Loading/Error/Data states
                     child: trendingAsync.when(
                       data: (books) => ListView.builder(
                         scrollDirection: Axis.horizontal,
@@ -178,7 +180,7 @@ class HomeBentoGrid extends ConsumerWidget {
     );
   }
 
-  // ... [Keep helper methods _buildStats, _buildCurrentRead, and _BentoCard exactly as they were] ...
+  // ... [Keep helper methods _buildStats, _buildUpNext, and _BentoCard exactly as they were] ...
 
   // Shows real count
   Widget _buildStats(int count) {
