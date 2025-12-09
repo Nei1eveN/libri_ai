@@ -22,8 +22,15 @@ class HomeBentoGrid extends ConsumerWidget {
     final savedBooksAsync = ref.watch(savedBooksStreamProvider);
 
     // Default empty values
-    final savedCount = savedBooksAsync.valueOrNull?.length ?? 0;
-    final lastSavedBook = savedBooksAsync.valueOrNull?.firstOrNull;
+    final books = savedBooksAsync.valueOrNull ?? [];
+    final savedCount = books.where((b) => b.id != 'welcome_guide').length;
+    Book? lastSavedBook = books.firstWhere(
+      (b) => b.id != 'welcome_guide', 
+      orElse: () => books.firstOrNull as Book, // Fallback to Welcome if nothing else exists
+    );
+
+    // Safety check: If the list is empty, lastSavedBook is null
+    if (books.isEmpty) lastSavedBook = null;
 
     return SliverToBoxAdapter(
       child: StaggeredGrid.count(
