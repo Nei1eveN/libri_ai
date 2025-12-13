@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:libri_ai/src/features/home/presentation/bento_grid.dart';
+import 'package:libri_ai/src/features/home/presentation/widgets/bento_grid.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
