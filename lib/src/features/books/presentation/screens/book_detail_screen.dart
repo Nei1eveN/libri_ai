@@ -1,8 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:libri_ai/src/core/presentation/widgets/app_network_image.dart';
 import 'package:libri_ai/src/features/books/domain/entities/books/book.dart';
 import 'package:libri_ai/src/features/books/presentation/providers/book_action_controller.dart';
 
@@ -42,14 +42,9 @@ class BookDetailScreen extends ConsumerWidget {
                 fit: StackFit.expand,
                 children: [
                   // The Cover Image
-                  CachedNetworkImage(
-                    imageUrl: book.thumbnailUrl ??
+                  AppNetworkImage(
+                    imageUrl: book.thumbnailUrl?.replaceFirst('http://', 'https://') ??
                         'https://placehold.co/400x600?text=No+Cover',
-                    fit: BoxFit.cover,
-                    placeholder: (_, __) =>
-                        Container(color: Colors.grey.shade200),
-                    errorWidget: (_, __, ___) =>
-                        const Center(child: Icon(Icons.broken_image)),
                   ),
                   // Gradient overlay so text pops if we put it on top (optional style)
                   const DecoratedBox(
