@@ -2,48 +2,9 @@
 
 import 'package:dio/dio.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:libri_ai/src/features/books/domain/book.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:libri_ai/src/features/books/domain/entities/books/book.dart';
+import 'package:libri_ai/src/features/books/domain/repositories/book_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
-part 'book_repository.g.dart';
-
-@riverpod
-BookRepository bookRepository(BookRepositoryRef ref) {
-  return BookRepositoryImpl(Supabase.instance.client);
-}
-
-// Interface: Allows for easier unit testing (mocking) later.
-abstract class BookRepository {
-  /// 🧠 Semantic Search (The Vibe Match)
-  Future<List<Book>> searchBooksByVibe(String userQuery);
-
-  /// 📚 Standard Fetch (For Trending/Home)
-  Future<List<Book>> getTrendingBooks();
-
-  /// Searches books based on title
-  Future<List<Book>> searchBooksByTitle(String title);
-
-  /// ➕ Add Book (Admin/Ingest Feature)
-  Future<void> addNewBook({
-    required String title,
-    required List<String> authors,
-    required String description,
-    required String genre,
-    required int pageCount,
-    String? publishedDate,
-    String? thumbnailUrl,
-    required String publisher,
-  });
-
-  /// ❤️ Check if book is saved
-  Future<bool> isBookSaved(String bookId);
-  Future<bool> isBookSavedLocally(String bookId);
-
-  /// 🔖 Toggle Save Status
-  Future<void> toggleSaveBook(String bookId);
-  Future<void> toggleSaveBookLocally(Book book);
-}
 
 class BookRepositoryImpl implements BookRepository {
   BookRepositoryImpl(this._supabase);
