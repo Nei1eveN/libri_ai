@@ -49,6 +49,7 @@ dev_dependencies:
   json_serializable: ^6.8.0
   mocktail: ^1.0.4
   riverpod_test: ^0.1.6
+  flutter_launcher_icons: ^0.14.4
 
 dependency_overrides:
   app_links: 6.3.0
@@ -57,3 +58,16 @@ flutter:
   uses-material-design: true
   assets:
     - .env
+    - assets/icon/
+    - assets/images/
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/app_icon.png"
+  min_sdk_android: 21
+  web:
+    generate: true
+    image_path: "assets/icon/app_icon.png"
+    background_color: "#121212"
+    theme_color: "#121212"
