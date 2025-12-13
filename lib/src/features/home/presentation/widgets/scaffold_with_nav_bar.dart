@@ -1,8 +1,8 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:libri_ai/src/core/theme/app_palette.dart';
-// import 'package:libri_ai/src/core/theme/app_palette.dart'; // We'll define this briefly below
 
 class ScaffoldWithNavBar extends StatelessWidget {
   const ScaffoldWithNavBar({required this.child, super.key});

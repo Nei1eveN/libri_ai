@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:libri_ai/src/core/presentation/error_view.dart';
-import 'package:libri_ai/src/features/home/presentation/home_providers.dart';
-import 'package:libri_ai/src/features/books/domain/book.dart';
+import 'package:libri_ai/src/features/books/domain/entities/books/book.dart';
+import 'package:libri_ai/src/features/home/presentation/providers/home_providers.dart';
 
 class SavedBooksScreen extends ConsumerWidget {
   const SavedBooksScreen({super.key});

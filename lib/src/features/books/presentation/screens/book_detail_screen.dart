@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:libri_ai/src/features/books/domain/book.dart';
-import 'package:libri_ai/src/features/books/presentation/book_action_controller.dart';
+import 'package:libri_ai/src/features/books/domain/entities/books/book.dart';
+import 'package:libri_ai/src/features/books/presentation/providers/book_action_controller.dart';
 
 class BookDetailScreen extends ConsumerWidget {
   const BookDetailScreen({required this.book, super.key});

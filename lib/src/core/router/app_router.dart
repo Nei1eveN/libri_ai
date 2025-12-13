@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:libri_ai/src/features/books/domain/book.dart';
-import 'package:libri_ai/src/features/books/presentation/add_book_screen.dart';
-import 'package:libri_ai/src/features/books/presentation/book_detail_screen.dart';
-import 'package:libri_ai/src/features/home/presentation/saved_books_screen.dart';
-import 'package:libri_ai/src/features/home/presentation/scaffold_with_nav_bar.dart';
+import 'package:libri_ai/src/features/books/domain/entities/books/book.dart';
+import 'package:libri_ai/src/features/books/presentation/screens/add_book_screen.dart';
+import 'package:libri_ai/src/features/books/presentation/screens/book_detail_screen.dart';
+import 'package:libri_ai/src/features/home/presentation/screens/saved_books_screen.dart';
+import 'package:libri_ai/src/features/home/presentation/widgets/scaffold_with_nav_bar.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:libri_ai/src/features/home/presentation/home_screen.dart'; // Placeholder
-import 'package:libri_ai/src/features/search/presentation/search_screen.dart'; // Placeholder
+import 'package:libri_ai/src/features/home/presentation/screens/home_screen.dart';
+import 'package:libri_ai/src/features/search/presentation/screens/search_screen.dart';
 
 part 'app_router.g.dart';
 
