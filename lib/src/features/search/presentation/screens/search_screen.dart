@@ -1,10 +1,10 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:libri_ai/src/core/presentation/error_view.dart';
-import 'package:libri_ai/src/core/presentation/shimmer_skeleton.dart';
+import 'package:libri_ai/src/core/presentation/widgets/app_network_image.dart';
+import 'package:libri_ai/src/core/presentation/widgets/error_view.dart';
+import 'package:libri_ai/src/core/presentation/widgets/shimmer_skeleton.dart';
 import 'package:libri_ai/src/core/theme/app_palette.dart';
 import 'package:libri_ai/src/core/utils/debouncer.dart';
 import 'package:libri_ai/src/features/search/presentation/providers/search_provider.dart';
@@ -210,13 +210,12 @@ class _SearchResultTile extends StatelessWidget {
             // Cover
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: CachedNetworkImage(
-                imageUrl: book.thumbnailUrl ?? 'https://placehold.co/100x150',
+              child: AppNetworkImage(
+                imageUrl:
+                    book.thumbnailUrl?.replaceFirst('http://', 'https://') ??
+                        'https://placehold.co/100x150',
                 width: 60,
                 height: 90,
-                fit: BoxFit.cover,
-                errorWidget: (_, __, ___) =>
-                    Container(width: 60, color: Colors.grey),
               ),
             ),
             const Gap(16),
