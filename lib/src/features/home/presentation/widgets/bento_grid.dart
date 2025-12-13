@@ -1,10 +1,10 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:libri_ai/src/core/presentation/error_view.dart';
+import 'package:libri_ai/src/core/presentation/widgets/app_network_image.dart';
+import 'package:libri_ai/src/core/presentation/widgets/error_view.dart';
 import 'package:libri_ai/src/core/theme/app_palette.dart';
 import 'package:libri_ai/src/features/books/domain/entities/books/book.dart';
 import 'package:libri_ai/src/features/home/presentation/providers/home_providers.dart';
@@ -130,16 +130,11 @@ class HomeBentoGrid extends ConsumerWidget {
                                   Expanded(
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(12),
-                                      // Use CachedNetworkImage for performance
-                                      child: CachedNetworkImage(
-                                        imageUrl: book.thumbnailUrl ??
+                                      child: AppNetworkImage(
+                                        imageUrl: book.thumbnailUrl
+                                                ?.replaceFirst(
+                                                    'http://', 'https://') ??
                                             'https://placehold.co/100x150?text=No+Cover',
-                                        fit: BoxFit.cover,
-                                        placeholder: (context, url) =>
-                                            Container(
-                                                color: Colors.grey.shade200),
-                                        errorWidget: (context, url, error) =>
-                                            const Icon(Icons.error),
                                       ),
                                     ),
                                   ),
@@ -227,16 +222,11 @@ class HomeBentoGrid extends ConsumerWidget {
             margin: const EdgeInsets.only(right: 16),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: CachedNetworkImage(
+              child: AppNetworkImage(
                 imageUrl: book.thumbnailUrl ?? 'https://placehold.co/200x300',
                 fit: BoxFit.cover,
                 // Make the cover take full height of the container
                 height: double.infinity,
-                placeholder: (_, __) => Container(color: Colors.grey.shade100),
-                errorWidget: (_, __, ___) => Container(
-                  color: Colors.grey.shade200,
-                  child: const Icon(Icons.book, color: Colors.grey),
-                ),
               ),
             ),
           ),

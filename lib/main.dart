@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:libri_ai/src/core/router/app_router.dart';
 import 'package:libri_ai/src/core/theme/app_theme.dart';
@@ -9,6 +10,7 @@ import 'package:libri_ai/src/features/books/domain/entities/books/book.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
+  usePathUrlStrategy();
   WidgetsFlutterBinding.ensureInitialized();
 
   // 1. Load Env Vars

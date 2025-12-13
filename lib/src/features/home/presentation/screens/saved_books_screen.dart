@@ -1,9 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:libri_ai/src/core/presentation/error_view.dart';
+import 'package:libri_ai/src/core/presentation/widgets/app_network_image.dart';
+import 'package:libri_ai/src/core/presentation/widgets/error_view.dart';
 import 'package:libri_ai/src/features/books/domain/entities/books/book.dart';
 import 'package:libri_ai/src/features/home/presentation/providers/home_providers.dart';
 
@@ -98,13 +98,10 @@ class _SavedBookTile extends StatelessWidget {
             // Cover
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: CachedNetworkImage(
+              child: AppNetworkImage(
                 imageUrl: book.thumbnailUrl ?? 'https://placehold.co/100x150',
                 width: 60,
                 height: 90,
-                fit: BoxFit.cover,
-                errorWidget: (_, __, ___) =>
-                    Container(width: 60, color: Colors.grey.shade200),
               ),
             ),
             const Gap(16),

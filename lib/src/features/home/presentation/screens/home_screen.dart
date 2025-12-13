@@ -85,10 +85,9 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: const CircleAvatar(
+                    child: CircleAvatar(
                       radius: 22, // Slightly larger
-                      backgroundImage:
-                          NetworkImage('https://i.pravatar.cc/150?img=12'),
+                      child: Image.asset('images/default_avatar.png'),
                     ),
                   ),
                 ),
