@@ -6,9 +6,8 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:libri_ai/src/core/presentation/error_view.dart';
 import 'package:libri_ai/src/core/theme/app_palette.dart';
-import 'package:libri_ai/src/features/books/domain/book.dart';
-import 'package:libri_ai/src/features/home/presentation/home_providers.dart';
-
+import 'package:libri_ai/src/features/books/domain/entities/books/book.dart';
+import 'package:libri_ai/src/features/home/presentation/providers/home_providers.dart';
 
 class HomeBentoGrid extends ConsumerWidget {
   const HomeBentoGrid({super.key});
@@ -27,7 +26,7 @@ class HomeBentoGrid extends ConsumerWidget {
     final realBook = books
         .where((b) => b.id != 'welcome_guide')
         .firstOrNull; // Returns null if none found, doesn't crash
-    
+
     // Fallback to ANY book (likely the Welcome Guide)
     final anyBook = books.firstOrNull;
 

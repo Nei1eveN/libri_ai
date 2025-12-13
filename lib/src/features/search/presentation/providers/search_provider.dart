@@ -1,6 +1,6 @@
+import 'package:libri_ai/src/features/books/data/book_repository_provider.dart';
+import 'package:libri_ai/src/features/books/domain/entities/books/book.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:libri_ai/src/features/books/data/book_repository.dart';
-import 'package:libri_ai/src/features/books/domain/book.dart';
 
 part 'search_provider.g.dart';
 

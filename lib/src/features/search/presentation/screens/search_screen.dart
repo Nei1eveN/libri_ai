@@ -7,7 +7,7 @@ import 'package:libri_ai/src/core/presentation/error_view.dart';
 import 'package:libri_ai/src/core/presentation/shimmer_skeleton.dart';
 import 'package:libri_ai/src/core/theme/app_palette.dart';
 import 'package:libri_ai/src/core/utils/debouncer.dart';
-import 'package:libri_ai/src/features/search/presentation/search_provider.dart';
+import 'package:libri_ai/src/features/search/presentation/providers/search_provider.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
