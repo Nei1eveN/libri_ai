@@ -10,7 +10,12 @@ import 'package:libri_ai/src/features/books/domain/entities/books/book.dart';
 import 'package:libri_ai/src/features/home/presentation/providers/home_providers.dart';
 
 class HomeBentoGrid extends ConsumerWidget {
-  const HomeBentoGrid({super.key});
+  const HomeBentoGrid({
+    super.key,
+    required this.crossAxisCount,
+  });
+
+  final int crossAxisCount;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,143 +38,148 @@ class HomeBentoGrid extends ConsumerWidget {
     // Decide: Real Book > Welcome Guide > Null (Empty)
     final lastSavedBook = realBook ?? anyBook;
 
-    return SliverToBoxAdapter(
-      child: StaggeredGrid.count(
-        crossAxisCount: 4,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        children: [
-          // A. Hero Tile (Static for now - we can make this dynamic later)
-          StaggeredGridTile.count(
-            crossAxisCellCount: 4,
-            mainAxisCellCount: 2,
-            child: _BentoCard(
-              color: Colors.white,
-              // Pass the real book data
-              child: _buildUpNext(context, lastSavedBook),
+    return SliverPadding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 110),
+      sliver: SliverToBoxAdapter(
+        child: StaggeredGrid.count(
+          crossAxisCount: crossAxisCount,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          children: [
+            // A. Hero Tile (Static for now - we can make this dynamic later)
+            StaggeredGridTile.count(
+              crossAxisCellCount: crossAxisCount,
+              mainAxisCellCount: 2,
+              child: _BentoCard(
+                color: Colors.white,
+                // Pass the real book data
+                child: _buildUpNext(context, lastSavedBook),
+              ),
             ),
-          ),
-
-          // B. AI Search Tile
-          StaggeredGridTile.count(
-            crossAxisCellCount: 2,
-            mainAxisCellCount: 2,
-            child: GestureDetector(
-              onTap: () => context.go('/search'),
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: AppPalette.aiGradient,
-                  borderRadius: BorderRadius.circular(24),
+        
+            // B. AI Search Tile
+            StaggeredGridTile.count(
+              crossAxisCellCount: crossAxisCount ~/ 2,
+              mainAxisCellCount: 2,
+              child: GestureDetector(
+                onTap: () => context.go('/search'),
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: AppPalette.aiGradient,
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Icon(Icons.auto_awesome, color: Colors.white, size: 30),
+                      Text(
+                        "Vibe\nMatch™",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                padding: const EdgeInsets.all(16),
-                child: const Column(
+              ),
+            ),
+        
+            // C. Stats Tile
+            StaggeredGridTile.count(
+              crossAxisCellCount: crossAxisCount ~/ 2,
+              mainAxisCellCount: 2,
+              child: _BentoCard(
+                color: Colors.white,
+                child: _buildStats(savedCount),
+              ),
+            ),
+        
+            // D. Trending Carousel (Now Real Data!)
+            StaggeredGridTile.count(
+              crossAxisCellCount: crossAxisCount,
+              mainAxisCellCount: 2.4,
+              child: _BentoCard(
+                color: Colors.white,
+                padding: EdgeInsets.zero,
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Icon(Icons.auto_awesome, color: Colors.white, size: 30),
-                    Text(
-                      "Vibe\nMatch™",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
+                    const Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Text(
+                        "Trending Now",
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
+                    Expanded(
+                      // Loading/Error/Data states
+                      child: trendingAsync.when(
+                        data: (books) => ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: books.length,
+                          itemBuilder: (context, index) {
+                            final book = books[index];
+                            return GestureDetector(
+                              onTap: () {
+                                // Navigate and pass the book object
+                                context.push('/book', extra: book);
+                              },
+                              child: Container(
+                                width: 100,
+                                margin:
+                                    const EdgeInsets.only(right: 12, bottom: 16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: AppNetworkImage(
+                                          imageUrl: book.thumbnailUrl
+                                                  ?.replaceFirst(
+                                                      'http://', 'https://') ??
+                                              'https://placehold.co/100x150?text=No+Cover',
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      book.title,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        loading: () =>
+                            const Center(child: CircularProgressIndicator()),
+                        // Wrapped it in a SingleChildScrollView just in case the error message is long
+                        // so it doesn't overflow the tile height.
+                        error: (err, stack) => SingleChildScrollView(
+                          child: ErrorView(
+                            error: err,
+                            onRetry: () => ref.refresh(trendingBooksProvider),
+                          ),
+                        ),
+                      ),
+                    )
                   ],
                 ),
               ),
             ),
-          ),
-
-          // C. Stats Tile
-          StaggeredGridTile.count(
-            crossAxisCellCount: 2,
-            mainAxisCellCount: 2,
-            child: _BentoCard(
-              color: Colors.white,
-              child: _buildStats(savedCount),
-            ),
-          ),
-
-          // D. Trending Carousel (Now Real Data!)
-          StaggeredGridTile.count(
-            crossAxisCellCount: 4,
-            mainAxisCellCount: 2.4,
-            child: _BentoCard(
-              color: Colors.white,
-              padding: EdgeInsets.zero,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Text("Trending Now",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                  Expanded(
-                    // Loading/Error/Data states
-                    child: trendingAsync.when(
-                      data: (books) => ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: books.length,
-                        itemBuilder: (context, index) {
-                          final book = books[index];
-                          return GestureDetector(
-                            onTap: () {
-                              // Navigate and pass the book object
-                              context.push('/book', extra: book);
-                            },
-                            child: Container(
-                              width: 100,
-                              margin:
-                                  const EdgeInsets.only(right: 12, bottom: 16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: AppNetworkImage(
-                                        imageUrl: book.thumbnailUrl
-                                                ?.replaceFirst(
-                                                    'http://', 'https://') ??
-                                            'https://placehold.co/100x150?text=No+Cover',
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    book.title,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      loading: () =>
-                          const Center(child: CircularProgressIndicator()),
-                      // Wrapped it in a SingleChildScrollView just in case the error message is long
-                      // so it doesn't overflow the tile height.
-                      error: (err, stack) => SingleChildScrollView(
-                        child: ErrorView(
-                          error: err,
-                          onRetry: () => ref.refresh(trendingBooksProvider),
-                        ),
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
