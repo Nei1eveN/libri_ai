@@ -41,7 +41,9 @@ jobs:
         run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Analyze Code
-        run: flutter analyze
+        run: | 
+          flutter format --set-exit-if-changed
+          flutter analyze
 
       - name: Run Unit Tests
         run: flutter test

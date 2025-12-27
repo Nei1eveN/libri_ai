@@ -29,12 +29,12 @@ class AppTheme {
           fontSize: 18,
           fontWeight: FontWeight.w600,
         ),
-        
+
         // NEW: Force the status bar to remain consistent even when AppBars are used
         systemOverlayStyle: SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
           statusBarIconBrightness: Brightness.dark, // Android
-          statusBarBrightness: Brightness.light,    // iOS
+          statusBarBrightness: Brightness.light, // iOS
         ),
       ),
 
@@ -54,7 +54,6 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          
           borderSide: BorderSide.none,
         ),
         hintStyle: const TextStyle(color: AppPalette.textLight),

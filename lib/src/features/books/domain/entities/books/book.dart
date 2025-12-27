@@ -10,12 +10,10 @@ class Book with _$Book {
     required String title,
     required List<String> authors,
     required String? description,
-    @JsonKey(name: 'thumbnail_url')
-    required String? thumbnailUrl,
+    @JsonKey(name: 'thumbnail_url') required String? thumbnailUrl,
     @Default(0) int pageCount,
     @Default(0.0) double rating,
-    @JsonKey(name: 'published_date')
-    required String? publishedDate,
+    @JsonKey(name: 'published_date') required String? publishedDate,
     String? publisher,
   }) = _Book;
 
