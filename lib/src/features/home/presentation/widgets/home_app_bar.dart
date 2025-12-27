@@ -75,9 +75,9 @@ class HomeAppBar extends StatelessWidget {
                   ),
                 ],
               ),
-              child: CircleAvatar(
+              child: const CircleAvatar(
                 radius: 22, // Slightly larger
-                child: Image.asset('images/default_avatar.png'),
+                child: Icon(Icons.person),
               ),
             ),
           ),
