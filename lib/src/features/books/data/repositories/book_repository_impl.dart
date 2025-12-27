@@ -25,7 +25,8 @@ class BookRepositoryImpl implements BookRepository {
 
       if (functionResponse.status != 200) {
         throw Exception(
-            'Edge function failed: ${functionResponse.status} ${functionResponse.data}');
+          'Edge function failed: ${functionResponse.status} ${functionResponse.data}',
+        );
       }
 
       final vector = List<double>.from(functionResponse.data['embedding']);
@@ -47,7 +48,8 @@ class BookRepositoryImpl implements BookRepository {
       // -------------------------------------------------------
       if (vibeResults.isEmpty) {
         print(
-            '⚠️ Vibe Search returned 0 results. Falling back to Google Books...');
+          '⚠️ Vibe Search returned 0 results. Falling back to Google Books...',
+        );
 
         // We pass the vibe query directly to Google Books.
         // Google's keyword search is often "smart enough" to find something relevant

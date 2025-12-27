@@ -21,11 +21,11 @@ class SearchNotifier extends _$SearchNotifier {
     if (query.trim().isEmpty) return;
 
     state = const AsyncValue.loading();
-    
+
     state = await AsyncValue.guard(() async {
       final repository = ref.read(bookRepositoryProvider);
       List<Book> results;
-      
+
       // 3. Switch logic based on mode
       if (mode == SearchMode.title) {
         // Calls Google Books API + Hive Cache
@@ -42,7 +42,7 @@ class SearchNotifier extends _$SearchNotifier {
         // Normalize title (lowercase, trim) to catch "Dune" vs "dune "
         uniqueBooks.putIfAbsent(book.title.toLowerCase().trim(), () => book);
       }
-      
+
       return uniqueBooks.values.toList();
     });
   }

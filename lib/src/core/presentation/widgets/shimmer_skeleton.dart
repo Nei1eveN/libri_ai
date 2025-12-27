@@ -45,7 +45,10 @@ class _SkeletonTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                      width: double.infinity, height: 16, color: Colors.white),
+                    width: double.infinity,
+                    height: 16,
+                    color: Colors.white,
+                  ),
                   const Gap(8),
                   Container(width: 100, height: 12, color: Colors.white),
                   const Gap(8),

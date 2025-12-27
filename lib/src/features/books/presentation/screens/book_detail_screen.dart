@@ -7,153 +7,313 @@ import 'package:libri_ai/src/features/books/domain/entities/books/book.dart';
 import 'package:libri_ai/src/features/books/presentation/providers/book_action_controller.dart';
 
 class BookDetailScreen extends ConsumerWidget {
-  const BookDetailScreen({required this.book, super.key});
+  const BookDetailScreen({
+    required this.book,
+    required this.heroTag,
+    super.key,
+  });
+
   final Book book;
+  final String? heroTag;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Senior Tip: Use lighter colors for secondary text
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
 
-    // Watch the specific provider for THIS book
+    // Watch state for "Save" button logic
     final isSavedAsync = ref.watch(bookActionControllerProvider(book));
+    final isSaved = isSavedAsync.value == true;
+
+    final tag = heroTag ?? book.id;
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          // 1. The Collapsing App Bar with Hero Image
-          SliverAppBar(
-            expandedHeight: 400,
-            pinned: true,
-            stretch: true,
-            backgroundColor: theme.scaffoldBackgroundColor,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
-              // Glass background for the back button so it's visible on dark covers
-              style: IconButton.styleFrom(
-                backgroundColor: Colors.white.withOpacity(0.5),
+      backgroundColor: theme.scaffoldBackgroundColor,
+      // 📱 Mobile Only: Use the FAB (Floating Action Button)
+      // On Desktop, we put the button inside the layout itself.
+      floatingActionButton: MediaQuery.of(context).size.width > 800
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => ref
+                  .read(bookActionControllerProvider(book).notifier)
+                  .toggle(),
+              backgroundColor: isSaved ? Colors.green : const Color(0xFF6366F1),
+              icon: Icon(
+                isSaved ? Icons.check : Icons.bookmark_add,
+                color: Colors.white,
               ),
-              onPressed: () => context.pop(),
-            ),
-            flexibleSpace: FlexibleSpaceBar(
-              stretchModes: const [StretchMode.zoomBackground],
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  // The Cover Image
-                  AppNetworkImage(
-                    imageUrl: book.thumbnailUrl?.replaceFirst('http://', 'https://') ??
-                        'https://placehold.co/400x600?text=No+Cover',
-                  ),
-                  // Gradient overlay so text pops if we put it on top (optional style)
-                  const DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Colors.transparent, Colors.black45],
-                        stops: [0.7, 1.0],
-                      ),
-                    ),
-                  ),
-                ],
+              label: Text(
+                isSaved ? "Saved" : "Want to Read",
+                style: const TextStyle(color: Colors.white),
               ),
             ),
-          ),
 
-          // 2. The Content Body
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title & Author
-                  Text(
-                    book.title,
-                    style: textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const Gap(8),
-                  Text(
-                    book.authors.join(", "),
-                    style: textTheme.titleMedium?.copyWith(
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1000),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isDesktop = constraints.maxWidth > 800;
 
-                  const Gap(24),
-
-                  // "Quick Stats" Row (Page Count, Rating, etc.)
-                  Row(
+              // 🖥️ 1. DESKTOP LAYOUT (Split View)
+              if (isDesktop) {
+                return Padding(
+                  padding: const EdgeInsets.all(32.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildStatChip(
-                        icon: Icons.auto_stories,
-                        label: "${book.pageCount} pages",
+                      // LEFT PANE: Cover & Action Button
+                      SizedBox(
+                        width: 300,
+                        child: Column(
+                          children: [
+                            // Back Button (Desktop style)
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: TextButton.icon(
+                                onPressed: () => context.pop(),
+                                icon: const Icon(Icons.arrow_back),
+                                label: const Text("Back"),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.black,
+                                ),
+                              ),
+                            ),
+                            const Gap(16),
+                            // Big Cover with Shadow
+                            Hero(
+                              tag: tag,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.2),
+                                      blurRadius: 20,
+                                      offset: const Offset(0, 10),
+                                    ),
+                                  ],
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: AppNetworkImage(
+                                    imageUrl: book.thumbnailUrl?.replaceFirst(
+                                          'http://',
+                                          'https://',
+                                        ) ??
+                                        '',
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const Gap(24),
+                            // Desktop "Big Button" (Replaces FAB)
+                            SizedBox(
+                              width: double.infinity,
+                              height: 50,
+                              child: FilledButton.icon(
+                                onPressed: () => ref
+                                    .read(
+                                      bookActionControllerProvider(book)
+                                          .notifier,
+                                    )
+                                    .toggle(),
+                                icon: Icon(
+                                  isSaved ? Icons.check : Icons.bookmark_add,
+                                ),
+                                label: Text(
+                                  isSaved
+                                      ? "Saved to Library"
+                                      : "Add to Library",
+                                ),
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: isSaved
+                                      ? Colors.green
+                                      : const Color(0xFF6366F1),
+                                  textStyle: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      const Gap(12),
-                      _buildStatChip(
-                        icon: Icons.star_rounded,
-                        label: "${book.rating} Rating", // Placeholder for now
-                        color: Colors.amber,
+
+                      const Gap(60), // Space between panes
+
+                      // RIGHT PANE: Scrollable Content
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Gap(40),
+                              Text(
+                                book.title,
+                                style: textTheme.displaySmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              const Gap(12),
+                              Text(
+                                "By ${book.authors.join(", ")}",
+                                style: textTheme.titleLarge
+                                    ?.copyWith(color: Colors.grey.shade600),
+                              ),
+                              const Gap(32),
+                              Row(
+                                children: [
+                                  _buildStatChip(
+                                    icon: Icons.auto_stories,
+                                    label: "${book.pageCount} pages",
+                                  ),
+                                  const Gap(12),
+                                  _buildStatChip(
+                                    icon: Icons.star_rounded,
+                                    label:
+                                        "${(!book.rating.isNegative ? book.rating : 'N/A')}",
+                                    color: Colors.amber,
+                                  ),
+                                ],
+                              ),
+                              const Gap(40),
+                              Text(
+                                "About this book",
+                                style: textTheme.headlineSmall
+                                    ?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                              const Gap(16),
+                              Text(
+                                book.description ?? "No description available.",
+                                style: textTheme.bodyLarge?.copyWith(
+                                  height: 1.8,
+                                  fontSize: 18,
+                                  color: Colors.grey.shade800,
+                                ),
+                              ),
+                              const Gap(100),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),
+                );
+              }
 
-                  const Gap(32),
-
-                  // Description Header
-                  Text(
-                    "About this book",
-                    style: textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
+              // 📱 2. MOBILE LAYOUT (Your Original Code)
+              return CustomScrollView(
+                slivers: [
+                  SliverAppBar(
+                    expandedHeight: 400,
+                    pinned: true,
+                    backgroundColor: theme.scaffoldBackgroundColor,
+                    leading: IconButton(
+                      icon: const Icon(
+                        Icons.arrow_back_ios_new,
+                        color: Colors.black,
+                      ),
+                      style: IconButton.styleFrom(
+                        backgroundColor: Colors.white.withOpacity(0.5),
+                      ),
+                      onPressed: () => context.pop(),
+                    ),
+                    flexibleSpace: FlexibleSpaceBar(
+                      background: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Hero(
+                            tag: tag,
+                            child: AppNetworkImage(
+                              imageUrl: book.thumbnailUrl
+                                      ?.replaceFirst('http://', 'https://') ??
+                                  '',
+                            ),
+                          ),
+                          const DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [Colors.transparent, Colors.black45],
+                                stops: [0.7, 1.0],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  const Gap(12),
-
-                  // Description Text
-                  Text(
-                    book.description ?? "No description available.",
-                    style: textTheme.bodyLarge?.copyWith(
-                      height: 1.6,
-                      color: Colors.grey.shade800,
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            book.title,
+                            style: textTheme.headlineMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          const Gap(8),
+                          Text(
+                            book.authors.join(", "),
+                            style: textTheme.titleMedium
+                                ?.copyWith(color: Colors.grey.shade600),
+                          ),
+                          const Gap(24),
+                          Row(
+                            children: [
+                              _buildStatChip(
+                                icon: Icons.auto_stories,
+                                label: "${book.pageCount} pages",
+                              ),
+                              const Gap(12),
+                              _buildStatChip(
+                                icon: Icons.star_rounded,
+                                label:
+                                    "${(!book.rating.isNegative ? book.rating : 'N/A')}",
+                                color: Colors.amber,
+                              ),
+                            ],
+                          ),
+                          const Gap(32),
+                          Text(
+                            "About this book",
+                            style: textTheme.titleLarge
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          const Gap(12),
+                          Text(
+                            book.description ?? "No description available.",
+                            style: textTheme.bodyLarge?.copyWith(
+                              height: 1.6,
+                              color: Colors.grey.shade800,
+                            ),
+                          ),
+                          const Gap(100),
+                        ],
+                      ),
                     ),
                   ),
-
-                  const Gap(100), // Bottom padding for scrolling space
                 ],
-              ),
-            ),
+              );
+            },
           ),
-        ],
-      ),
-
-      // Floating Action Button for "Read Now" or "Save"
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          ref.read(bookActionControllerProvider(book).notifier).toggle();
-        }, // Future: Add to library logic
-        // Change color based on state
-        backgroundColor:
-            isSavedAsync.value == true ? Colors.green : const Color(0xFF6366F1),
-        // Change Icon
-        icon: Icon(
-            isSavedAsync.value == true ? Icons.check : Icons.bookmark_add,
-            color: Colors.white),
-        // Change Label
-        label: Text(
-          isSavedAsync.value == true ? "Saved to Library" : "Want to Read",
-          style: const TextStyle(color: Colors.white),
         ),
       ),
     );
   }
 
-  Widget _buildStatChip(
-      {required IconData icon, required String label, Color? color}) {
+  Widget _buildStatChip({
+    required IconData icon,
+    required String label,
+    Color? color,
+  }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(

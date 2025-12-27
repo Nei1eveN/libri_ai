@@ -55,18 +55,20 @@ void main() async {
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
   // 2. Set the Overlay Style (Dark Icons for Status Bar)
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent, // Android
-    systemNavigationBarColor: Colors.transparent, // Android
-    systemNavigationBarDividerColor: Colors.transparent,
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent, // Android
+      systemNavigationBarColor: Colors.transparent, // Android
+      systemNavigationBarDividerColor: Colors.transparent,
 
-    // Icon Brightness (Dark icons for light backgrounds)
-    statusBarIconBrightness: Brightness.dark, // Android
-    statusBarBrightness: Brightness.light, // iOS
+      // Icon Brightness (Dark icons for light backgrounds)
+      statusBarIconBrightness: Brightness.dark, // Android
+      statusBarBrightness: Brightness.light, // iOS
 
-    // Bottom Nav Bar Icon Brightness
-    systemNavigationBarIconBrightness: Brightness.dark,
-  ));
+      // Bottom Nav Bar Icon Brightness
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ),
+  );
 
   runApp(const ProviderScope(child: LibriApp()));
 }
