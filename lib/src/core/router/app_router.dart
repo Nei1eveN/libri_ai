@@ -13,7 +13,6 @@ part 'app_router.g.dart';
 
 // Create a Global Key for the Navigator to allow context-less navigation if needed
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
-final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 @riverpod
 GoRouter router(RouterRef ref) {
@@ -21,41 +20,49 @@ GoRouter router(RouterRef ref) {
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/',
     routes: [
-      // ShellRoute wraps screens that share the Bottom Nav
-      ShellRoute(
-        navigatorKey: _shellNavigatorKey,
-        builder: (context, state, child) {
-          // We will build a fancy scaffold here in Week 2
-          return ScaffoldWithNavBar(child: child);
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return ScaffoldWithNavBar(navigationShell: navigationShell);
         },
-        routes: [
-          GoRoute(
-            path: '/',
-            pageBuilder: (context, state) => _buildFadePage(
-              context,
-              state,
-              const HomeScreen(),
-            ),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/',
+                pageBuilder: (context, state) => _buildFadePage(
+                  context,
+                  state,
+                  const HomeScreen(),
+                ),
+              ),
+            ],
           ),
-          GoRoute(
-            path: '/search',
-            pageBuilder: (context, state) => _buildFadePage(
-              context,
-              state,
-              const SearchScreen(),
-            ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/search',
+                pageBuilder: (context, state) => _buildFadePage(
+                  context,
+                  state,
+                  const SearchScreen(),
+                ),
+              ),
+            ],
           ),
-          GoRoute(
-            path: '/saved',
-            pageBuilder: (context, state) => _buildFadePage(
-              context,
-              state,
-              const SavedBooksScreen(),
-            ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/saved',
+                pageBuilder: (context, state) => _buildFadePage(
+                  context,
+                  state,
+                  const SavedBooksScreen(),
+                ),
+              ),
+            ],
           ),
         ],
       ),
-      // NEW: Add this as a SIBLING to ShellRoute (at the end of the list)
       GoRoute(
         path: '/book',
         builder: (context, state) {
