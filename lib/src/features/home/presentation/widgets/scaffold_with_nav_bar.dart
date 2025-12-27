@@ -5,28 +5,146 @@ import 'package:go_router/go_router.dart';
 import 'package:libri_ai/src/core/theme/app_palette.dart';
 
 class ScaffoldWithNavBar extends StatelessWidget {
-  const ScaffoldWithNavBar({required this.child, super.key});
+  const ScaffoldWithNavBar({required this.navigationShell, super.key});
 
-  final Widget child;
+  final StatefulNavigationShell navigationShell;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        // Breakpoint: 800px is usually better than 600px for a full Side Rail
+        final isDesktop = width >= 800;
+
+        if (isDesktop) {
+          return _DesktopScaffold(navigationShell: navigationShell);
+        }
+
+        return _MobileScaffold(navigationShell: navigationShell);
+      },
+    );
+  }
+}
+
+// 📱 MOBILE LAYOUT (Floating Glass Bar)
+class _MobileScaffold extends StatelessWidget {
+  const _MobileScaffold({required this.navigationShell});
+
+  final StatefulNavigationShell navigationShell;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBody: true, // Important: Allows content to go behind the nav bar
+      // Extend body so content flows BEHIND the floating bar
+      extendBody: true,
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
-          // 1. The Screen Content
-          child,
+          // 1. The Content
+          // We wrap this to ensure inner lists know there is an obstruction at the bottom
+          MediaQuery.removePadding(
+            context: context,
+            removeBottom: true, // We handle padding manually or via the bar
+            child: navigationShell,
+          ),
 
-          // 2. The Floating Nav Bar
+          // 2. The Floating Bar
           Positioned(
             left: 0,
             right: 0,
-            bottom: 30, // Floats 30px from bottom
+            bottom: 30,
             child: Center(
               child: _GlassNavBar(),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+// 🖥️ DESKTOP LAYOUT (Side Rail)
+class _DesktopScaffold extends StatelessWidget {
+  const _DesktopScaffold({required this.navigationShell});
+  final StatefulNavigationShell navigationShell;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Row(
+        children: [
+          // 1. The Side Rail
+          NavigationRail(
+            selectedIndex: navigationShell.currentIndex,
+            onDestinationSelected: (index) {
+              navigationShell.goBranch(
+                index,
+                initialLocation: index == navigationShell.currentIndex,
+              );
+            },
+            // Style it to match your app
+            backgroundColor: Colors.white,
+            indicatorColor: AppPalette.primary.withOpacity(0.1),
+            selectedIconTheme: const IconThemeData(color: AppPalette.primary),
+            unselectedIconTheme: IconThemeData(color: Colors.grey.shade400),
+            // The Label Style
+            selectedLabelTextStyle: const TextStyle(
+              color: AppPalette.primary,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+            unselectedLabelTextStyle: TextStyle(
+              color: Colors.grey.shade600,
+              fontSize: 12,
+            ),
+
+            // "Extended" shows text labels next to icons.
+            // You can make this dynamic (width > 1200 ? true : false)
+            extended: MediaQuery.sizeOf(context).width > 1100,
+
+            // Header: Your Logo
+            leading: Column(
+              children: [
+                const SizedBox(height: 24),
+                // Replace with your 'L' logo asset or Icon
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.auto_stories, color: Colors.white),
+                ),
+                const SizedBox(height: 32),
+              ],
+            ),
+
+            // The Tabs
+            destinations: const [
+              NavigationRailDestination(
+                icon: Icon(Icons.home_outlined),
+                selectedIcon: Icon(Icons.home_filled),
+                label: Text('Home'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.search),
+                selectedIcon: Icon(Icons.search_rounded),
+                label: Text('Search'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.bookmark_border),
+                selectedIcon: Icon(Icons.bookmark),
+                label: Text('Library'),
+              ),
+            ],
+          ),
+
+          // 2. Vertical Divider
+          VerticalDivider(thickness: 1, width: 1, color: Colors.grey.shade200),
+
+          // 3. The Content Body
+          Expanded(child: navigationShell),
         ],
       ),
     );
