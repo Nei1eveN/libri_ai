@@ -49,7 +49,7 @@ class _AddBookScreenState extends ConsumerState<AddBookScreen> {
       await ref.read(bookRepositoryProvider).addNewBook(
             title: _titleController.text.trim(),
             authors: [
-              _authorController.text.trim()
+              _authorController.text.trim(),
             ], // Simple single author for now
             description: _descController.text.trim(),
             genre: _genreController.text.trim(),
@@ -190,7 +190,10 @@ class _AddBookScreenState extends ConsumerState<AddBookScreen> {
                     ? const SizedBox.square(
                         dimension: 20,
                         child: CircularProgressIndicator(
-                            color: Colors.white, strokeWidth: 2))
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
                     : const Icon(Icons.auto_awesome),
                 label:
                     Text(_isSubmitting ? "Generating Vectors..." : "Add Book"),

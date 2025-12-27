@@ -56,7 +56,7 @@ class HomeBentoGrid extends ConsumerWidget {
                 child: _buildUpNext(context, lastSavedBook),
               ),
             ),
-        
+
             // B. AI Search Tile
             StaggeredGridTile.count(
               crossAxisCellCount: crossAxisCount ~/ 2,
@@ -87,7 +87,7 @@ class HomeBentoGrid extends ConsumerWidget {
                 ),
               ),
             ),
-        
+
             // C. Stats Tile
             StaggeredGridTile.count(
               crossAxisCellCount: crossAxisCount ~/ 2,
@@ -97,7 +97,7 @@ class HomeBentoGrid extends ConsumerWidget {
                 child: _buildStats(savedCount),
               ),
             ),
-        
+
             // D. Trending Carousel (Now Real Data!)
             StaggeredGridTile.count(
               crossAxisCellCount: crossAxisCount,
@@ -127,23 +127,37 @@ class HomeBentoGrid extends ConsumerWidget {
                             return GestureDetector(
                               onTap: () {
                                 // Navigate and pass the book object
-                                context.push('/book', extra: book);
+                                context.push(
+                                  '/book',
+                                  extra: {
+                                    'book': book,
+                                    'heroTag': 'trending_${book.id}',
+                                  },
+                                );
                               },
                               child: Container(
                                 width: 100,
-                                margin:
-                                    const EdgeInsets.only(right: 12, bottom: 16),
+                                margin: const EdgeInsets.only(
+                                  right: 12,
+                                  bottom: 16,
+                                ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Expanded(
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(12),
-                                        child: AppNetworkImage(
-                                          imageUrl: book.thumbnailUrl
-                                                  ?.replaceFirst(
-                                                      'http://', 'https://') ??
-                                              'https://placehold.co/100x150?text=No+Cover',
+                                      child: Hero(
+                                        tag: 'trending_${book.id}',
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          child: AppNetworkImage(
+                                            imageUrl: book.thumbnailUrl
+                                                    ?.replaceFirst(
+                                                  'http://',
+                                                  'https://',
+                                                ) ??
+                                                'https://placehold.co/100x150?text=No+Cover',
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -153,8 +167,9 @@ class HomeBentoGrid extends ConsumerWidget {
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -173,7 +188,7 @@ class HomeBentoGrid extends ConsumerWidget {
                           ),
                         ),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -191,10 +206,14 @@ class HomeBentoGrid extends ConsumerWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text("$count",
-            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
-        const Text("Saved Books", // Renamed from "Books Read" to be accurate
-            style: TextStyle(color: Colors.grey, fontSize: 12)),
+        Text(
+          "$count",
+          style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+        ),
+        const Text(
+          "Saved Books", // Renamed from "Books Read" to be accurate
+          style: TextStyle(color: Colors.grey, fontSize: 12),
+        ),
       ],
     );
   }
@@ -207,15 +226,20 @@ class HomeBentoGrid extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.library_books_rounded,
-                size: 40, color: Colors.grey.shade300),
+            Icon(
+              Icons.library_books_rounded,
+              size: 40,
+              color: Colors.grey.shade300,
+            ),
             const Gap(8),
-            const Text("Your library is empty",
-                style: TextStyle(color: Colors.grey)),
+            const Text(
+              "Your library is empty",
+              style: TextStyle(color: Colors.grey),
+            ),
             TextButton(
               onPressed: () => context.go('/search'),
               child: const Text("Find a book"),
-            )
+            ),
           ],
         ),
       );
@@ -223,20 +247,29 @@ class HomeBentoGrid extends ConsumerWidget {
 
     // 2. Data State (Show the actual book)
     return GestureDetector(
-      onTap: () => context.push('/book', extra: book),
+      onTap: () => context.push(
+        '/book',
+        extra: {
+          'book': book,
+          'heroTag': 'up_next_${book.id}',
+        },
+      ),
       child: Row(
         children: [
           // Cover
           Container(
-            width: 80,
+            width: 200,
             margin: const EdgeInsets.only(right: 16),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: AppNetworkImage(
-                imageUrl: book.thumbnailUrl ?? 'https://placehold.co/200x300',
-                fit: BoxFit.cover,
-                // Make the cover take full height of the container
-                height: double.infinity,
+            child: Hero(
+              tag: 'up_next_${book.id}',
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: AppNetworkImage(
+                  imageUrl: book.thumbnailUrl ?? 'https://placehold.co/200x300',
+                  fit: BoxFit.cover,
+                  // Make the cover take full height of the container
+                  height: double.infinity,
+                ),
               ),
             ),
           ),
@@ -257,42 +290,51 @@ class HomeBentoGrid extends ConsumerWidget {
                   child: const Text(
                     "UP NEXT", // Changed from "Currently Reading"
                     style: TextStyle(
-                        fontSize: 10,
-                        color: Color(0xFF9333EA),
-                        fontWeight: FontWeight.bold),
+                      fontSize: 10,
+                      color: Color(0xFF9333EA),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   book.title,
                   style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 16),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                Text(book.authors.firstOrNull ?? "Unknown Author",
-                    style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                Text(
+                  book.authors.firstOrNull ?? "Unknown Author",
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+                ),
                 const SizedBox(height: 12),
 
                 // Since we don't have real "progress", we show a "Start Reading" indicator
                 // instead of a fake 42% progress bar.
                 Row(
                   children: [
-                    const Icon(Icons.play_circle_outline,
-                        size: 16, color: Color(0xFF6366F1)),
+                    const Icon(
+                      Icons.play_circle_outline,
+                      size: 16,
+                      color: Color(0xFF6366F1),
+                    ),
                     const Gap(4),
                     Text(
                       "Start Reading",
                       style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey.shade700),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade700,
+                      ),
                     ),
                   ],
-                )
+                ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );

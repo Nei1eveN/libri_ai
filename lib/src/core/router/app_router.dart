@@ -61,14 +61,19 @@ GoRouter router(RouterRef ref) {
         builder: (context, state) {
           // We pass the Book object via the 'extra' parameter
           // This avoids an extra API call.
-          final book = state.extra as Book;
-          return BookDetailScreen(book: book);
+          final extras = state.extra as Map<String, dynamic>;
+          final book = extras['book'] as Book;
+          final heroTag = extras['heroTag'] as String?;
+          return BookDetailScreen(
+            book: book,
+            heroTag: heroTag,
+          );
         },
       ),
       GoRoute(
         path: '/add-book',
         builder: (context, state) => const AddBookScreen(),
-      )
+      ),
     ],
   );
 }
