@@ -89,14 +89,22 @@ jobs:
       - name: Build Web App
         run: flutter build web --release --web-renderer html --no-tree-shake-icons
 
-      # 📤 Deploy to Vercel
+      # 🔧 PREPARE DEPLOYMENT
+      # We must copy vercel.json into the build folder so Vercel sees the rewrite rules
+      - name: Copy Config
+        run: cp vercel.json build/web/vercel.json
+
+      # 📤 DEPLOY TO VERCEL (Native CLI)
+      # We use the official CLI for maximum control
+      - name: Install Vercel CLI
+        run: npm install --global vercel
+
+        # 📤 Deploy to Vercel
       - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod' # Force production deployment
-          working-directory: ./
-          # Point Vercel to the folder Flutter created
-          destination-dir: ./build/web
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        # --prod: Deploys to production
+        # ./build/web: Tells Vercel to upload ONLY the compiled folder
+        run: vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} ./build/web
