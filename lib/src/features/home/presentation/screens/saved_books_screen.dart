@@ -29,7 +29,7 @@ class SavedBooksScreen extends ConsumerWidget {
             _ => 1,
           };
 
-          final bookWord = switch(savedBooksAsync.valueOrNull?.length ?? 0) {
+          final bookWord = switch (savedBooksAsync.valueOrNull?.length ?? 0) {
             < 1 || > 1 => 'Books',
             _ => 'Book'
           };

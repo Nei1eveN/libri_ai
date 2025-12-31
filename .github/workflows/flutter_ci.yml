@@ -7,9 +7,9 @@ on:
     branches: [ "main" ]
 
 jobs:
+  # 🏗️ JOB 1: TEST & ANDROID BUILD
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -25,8 +25,6 @@ jobs:
           flutter-version: '3.24.x'
           channel: 'stable'
 
-      # 🔑 Recreate the .env file from GitHub Secrets
-      # This prevents the "Asset not found" error during build
       - name: Create .env file
         run: |
           echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > .env
@@ -42,19 +40,63 @@ jobs:
 
       - name: Analyze Code
         run: | 
-          flutter format --set-exit-if-changed
+          dart format --set-exit-if-changed lib test
           flutter analyze
 
       - name: Run Unit Tests
         run: flutter test
 
-      # 📦 Build the APK (verifies the app actually compiles for Android)
       - name: Build Android APK
         run: flutter build apk --release --no-tree-shake-icons
 
-      # (Optional) Upload the APK so you can download it from GitHub Actions
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+
+  # 🚀 JOB 2: BUILD WEB & DEPLOY TO VERCEL
+  deploy_web:
+    # Only run this if tests passed AND we are on the main branch
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+          channel: 'stable'
+
+      # ♻️ Re-create .env for the Web Build
+      - name: Create .env file
+        run: |
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > .env
+          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
+          echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" >> .env
+          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
+
+      - name: Get Dependencies
+        run: flutter pub get
+
+      - name: Run Code Generation
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      # 🏗️ Build Specifically for Web (HTML Renderer)
+      - name: Build Web App
+        run: flutter build web --release --web-renderer html --no-tree-shake-icons
+
+      # 📤 Deploy to Vercel
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod' # Force production deployment
+          working-directory: ./
+          # Point Vercel to the folder Flutter created
+          destination-dir: ./build/web
