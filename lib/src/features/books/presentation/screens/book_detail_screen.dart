@@ -84,6 +84,8 @@ class BookDetailScreen extends ConsumerWidget {
                             Hero(
                               tag: tag,
                               child: Container(
+                                width: double.infinity,
+                                height: 500,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
@@ -102,6 +104,7 @@ class BookDetailScreen extends ConsumerWidget {
                                           'https://',
                                         ) ??
                                         '',
+                                    title: book.title,
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -232,6 +235,7 @@ class BookDetailScreen extends ConsumerWidget {
                               imageUrl: book.thumbnailUrl
                                       ?.replaceFirst('http://', 'https://') ??
                                   '',
+                              title: book.title,
                             ),
                           ),
                           const DecoratedBox(

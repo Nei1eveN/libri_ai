@@ -157,6 +157,8 @@ class HomeBentoGrid extends ConsumerWidget {
                                                   'https://',
                                                 ) ??
                                                 'https://placehold.co/100x150?text=No+Cover',
+                                            title: book.title,
+                                            width: double.infinity,
                                           ),
                                         ),
                                       ),
@@ -266,6 +268,7 @@ class HomeBentoGrid extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(12),
                 child: AppNetworkImage(
                   imageUrl: book.thumbnailUrl ?? 'https://placehold.co/200x300',
+                  title: book.title,
                   fit: BoxFit.cover,
                   // Make the cover take full height of the container
                   height: double.infinity,

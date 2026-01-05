@@ -17,6 +17,7 @@ _$BookImpl _$$BookImplFromJson(Map<String, dynamic> json) => _$BookImpl(
       rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
       publishedDate: json['published_date'] as String?,
       publisher: json['publisher'] as String?,
+      imageLinks: json['imageLinks'] as Map<String, dynamic>?,
     );
 
 Map<String, dynamic> _$$BookImplToJson(_$BookImpl instance) =>
@@ -30,4 +31,5 @@ Map<String, dynamic> _$$BookImplToJson(_$BookImpl instance) =>
       'rating': instance.rating,
       'published_date': instance.publishedDate,
       'publisher': instance.publisher,
+      'imageLinks': instance.imageLinks,
     };

@@ -13,6 +13,7 @@ abstract class BookRepository {
 
   /// ➕ Add Book (Admin/Ingest Feature)
   Future<void> addNewBook({
+    String? id,
     required String title,
     required List<String> authors,
     required String description,
@@ -21,6 +22,7 @@ abstract class BookRepository {
     String? publishedDate,
     String? thumbnailUrl,
     required String publisher,
+    Map<String, dynamic>? imageLinks,
   });
 
   /// ❤️ Check if book is saved

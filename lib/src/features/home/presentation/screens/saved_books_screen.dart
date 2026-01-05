@@ -278,6 +278,7 @@ class _SavedBookTile extends StatelessWidget {
                   imageUrl:
                       book.thumbnailUrl?.replaceFirst('http://', 'https://') ??
                           'https://placehold.co/100x150',
+                  title: book.title,
                   width: 60,
                   height: 90,
                   fit: BoxFit.cover, // Ensure it fills the box

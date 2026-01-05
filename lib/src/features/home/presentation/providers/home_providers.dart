@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:libri_ai/src/features/books/data/book_repository_provider.dart';
 import 'package:libri_ai/src/features/books/domain/entities/books/book.dart';
@@ -34,7 +36,8 @@ List<Book> _getBooksFromBox(Box box) {
       .map((e) {
         // Handle potential type casting issues safely
         if (e is Map) {
-          return Book.fromJson(Map<String, dynamic>.from(e));
+          final json = jsonDecode(jsonEncode(e));
+          return Book.fromJson(Map<String, dynamic>.from(json));
         }
         return null;
       })

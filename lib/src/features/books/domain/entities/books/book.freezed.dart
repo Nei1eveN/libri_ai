@@ -31,6 +31,7 @@ mixin _$Book {
   @JsonKey(name: 'published_date')
   String? get publishedDate => throw _privateConstructorUsedError;
   String? get publisher => throw _privateConstructorUsedError;
+  Map<String, dynamic>? get imageLinks => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -51,7 +52,8 @@ abstract class $BookCopyWith<$Res> {
       int pageCount,
       double rating,
       @JsonKey(name: 'published_date') String? publishedDate,
-      String? publisher});
+      String? publisher,
+      Map<String, dynamic>? imageLinks});
 }
 
 /// @nodoc
@@ -76,6 +78,7 @@ class _$BookCopyWithImpl<$Res, $Val extends Book>
     Object? rating = null,
     Object? publishedDate = freezed,
     Object? publisher = freezed,
+    Object? imageLinks = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -114,6 +117,10 @@ class _$BookCopyWithImpl<$Res, $Val extends Book>
           ? _value.publisher
           : publisher // ignore: cast_nullable_to_non_nullable
               as String?,
+      imageLinks: freezed == imageLinks
+          ? _value.imageLinks
+          : imageLinks // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
     ) as $Val);
   }
 }
@@ -134,7 +141,8 @@ abstract class _$$BookImplCopyWith<$Res> implements $BookCopyWith<$Res> {
       int pageCount,
       double rating,
       @JsonKey(name: 'published_date') String? publishedDate,
-      String? publisher});
+      String? publisher,
+      Map<String, dynamic>? imageLinks});
 }
 
 /// @nodoc
@@ -156,6 +164,7 @@ class __$$BookImplCopyWithImpl<$Res>
     Object? rating = null,
     Object? publishedDate = freezed,
     Object? publisher = freezed,
+    Object? imageLinks = freezed,
   }) {
     return _then(_$BookImpl(
       id: null == id
@@ -194,6 +203,10 @@ class __$$BookImplCopyWithImpl<$Res>
           ? _value.publisher
           : publisher // ignore: cast_nullable_to_non_nullable
               as String?,
+      imageLinks: freezed == imageLinks
+          ? _value._imageLinks
+          : imageLinks // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
     ));
   }
 }
@@ -210,8 +223,10 @@ class _$BookImpl implements _Book {
       this.pageCount = 0,
       this.rating = 0.0,
       @JsonKey(name: 'published_date') required this.publishedDate,
-      this.publisher})
-      : _authors = authors;
+      this.publisher,
+      final Map<String, dynamic>? imageLinks})
+      : _authors = authors,
+        _imageLinks = imageLinks;
 
   factory _$BookImpl.fromJson(Map<String, dynamic> json) =>
       _$$BookImplFromJson(json);
@@ -244,10 +259,19 @@ class _$BookImpl implements _Book {
   final String? publishedDate;
   @override
   final String? publisher;
+  final Map<String, dynamic>? _imageLinks;
+  @override
+  Map<String, dynamic>? get imageLinks {
+    final value = _imageLinks;
+    if (value == null) return null;
+    if (_imageLinks is EqualUnmodifiableMapView) return _imageLinks;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(value);
+  }
 
   @override
   String toString() {
-    return 'Book(id: $id, title: $title, authors: $authors, description: $description, thumbnailUrl: $thumbnailUrl, pageCount: $pageCount, rating: $rating, publishedDate: $publishedDate, publisher: $publisher)';
+    return 'Book(id: $id, title: $title, authors: $authors, description: $description, thumbnailUrl: $thumbnailUrl, pageCount: $pageCount, rating: $rating, publishedDate: $publishedDate, publisher: $publisher, imageLinks: $imageLinks)';
   }
 
   @override
@@ -268,7 +292,9 @@ class _$BookImpl implements _Book {
             (identical(other.publishedDate, publishedDate) ||
                 other.publishedDate == publishedDate) &&
             (identical(other.publisher, publisher) ||
-                other.publisher == publisher));
+                other.publisher == publisher) &&
+            const DeepCollectionEquality()
+                .equals(other._imageLinks, _imageLinks));
   }
 
   @JsonKey(ignore: true)
@@ -283,7 +309,8 @@ class _$BookImpl implements _Book {
       pageCount,
       rating,
       publishedDate,
-      publisher);
+      publisher,
+      const DeepCollectionEquality().hash(_imageLinks));
 
   @JsonKey(ignore: true)
   @override
@@ -309,7 +336,8 @@ abstract class _Book implements Book {
       final int pageCount,
       final double rating,
       @JsonKey(name: 'published_date') required final String? publishedDate,
-      final String? publisher}) = _$BookImpl;
+      final String? publisher,
+      final Map<String, dynamic>? imageLinks}) = _$BookImpl;
 
   factory _Book.fromJson(Map<String, dynamic> json) = _$BookImpl.fromJson;
 
@@ -333,6 +361,8 @@ abstract class _Book implements Book {
   String? get publishedDate;
   @override
   String? get publisher;
+  @override
+  Map<String, dynamic>? get imageLinks;
   @override
   @JsonKey(ignore: true)
   _$$BookImplCopyWith<_$BookImpl> get copyWith =>

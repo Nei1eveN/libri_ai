@@ -1,5 +1,7 @@
 // ignore_for_file: avoid_print
 
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:libri_ai/src/features/books/domain/entities/books/book.dart';
@@ -116,7 +118,10 @@ class BookRepositoryImpl implements BookRepository {
       final cachedData = _cacheBox.get(cacheKey) as List;
       // Convert stored JSON back to Book objects
       return cachedData
-          .map((e) => Book.fromJson(Map<String, dynamic>.from(e)))
+          .map((e) {
+            final json = jsonDecode(jsonEncode(e));
+            return Book.fromJson(Map<String, dynamic>.from(json));
+          })
           .toList();
     }
 
@@ -133,14 +138,20 @@ class BookRepositoryImpl implements BookRepository {
         if (items == null) return [];
 
         // Map Google API format to our Book model
-        final books = items.map((item) {
+        var books = items.map((item) {
           final volume = item['volumeInfo'];
+
+          String? rawThumbnail = volume['imageLinks']?['thumbnail'];
+          if (rawThumbnail != null && rawThumbnail.startsWith('http://')) {
+            rawThumbnail = rawThumbnail.replaceFirst('http://', 'https://');
+          }
           return Book(
             id: item['id'],
             title: volume['title'] ?? 'Unknown',
             authors: List<String>.from(volume['authors'] ?? []),
             description: volume['description'],
-            thumbnailUrl: volume['imageLinks']?['thumbnail'],
+            thumbnailUrl: rawThumbnail,
+            imageLinks: volume['imageLinks'],
             pageCount: volume['pageCount'] ?? 0,
             rating: (volume['averageRating'] ?? 0).toDouble(),
             publishedDate: volume['publishedDate'],
@@ -148,12 +159,47 @@ class BookRepositoryImpl implements BookRepository {
           );
         }).toList();
 
-        // 3. Save to Cache (for next time)
-        // We store the raw JSON map
-        final jsonList = books.map((b) => b.toJson()).toList();
-        await _cacheBox.put(cacheKey, jsonList);
+        _ingestBooksToSupabase(books).then((_) {
+          print('🏁 Background ingestion complete');
+        }).catchError((e) {
+          print('⚠️ Background ingestion error: $e');
+        });
 
-        await _ingestBooksToSupabase(books);
+        try {
+          final googleIds = books.map((b) => b.id).toList();
+
+          if (googleIds.isEmpty) return books;
+
+          final filterString = '(${googleIds.map((id) => '"$id"').join(',')})';
+
+          final dbMatches = await _supabase
+              .from('books')
+              .select('id, thumbnail_url')
+              .filter('id', 'in', filterString)
+              .timeout(const Duration(milliseconds: 500));
+
+          final dbCoverMap = {
+            for (var match in dbMatches)
+              match['id'] as String: match['thumbnail_url'] as String,
+          };
+
+          books = books.map((book) {
+            final betterCover = dbCoverMap[book.id];
+
+            if (betterCover != null) {
+              return book.copyWith(thumbnailUrl: betterCover);
+            }
+
+            return book;
+          }).toList();
+        } catch (e) {
+          print('⚠️ Hydration skipped (slow network or timeout): $e');
+          // We proceed with the Google images. No harm done.
+        }
+
+        // 3. Cache & Return
+        // Cache the final result (hydrated or not)
+        _cacheBox.put(cacheKey, books.map((b) => b.toJson()).toList());
 
         return books;
       }
@@ -196,6 +242,7 @@ class BookRepositoryImpl implements BookRepository {
         // We reuse the existing 'add-book' Edge Function!
         // It handles the vector generation and duplicate checks for us.
         await addNewBook(
+          id: book.id,
           title: book.title,
           authors: book.authors,
           description: book.description!,
@@ -203,6 +250,7 @@ class BookRepositoryImpl implements BookRepository {
           pageCount: book.pageCount,
           // Pass the data from Google Books
           thumbnailUrl: book.thumbnailUrl,
+          imageLinks: book.imageLinks,
           // Note: Google Books API usually gives dates like "2023-10-01" or just "2023"
           publishedDate: _normalizeDate(book.publishedDate),
           publisher: book.publisher,
@@ -220,6 +268,7 @@ class BookRepositoryImpl implements BookRepository {
   /// Calls the Edge Function to generate the vector and save to DB.
   @override
   Future<void> addNewBook({
+    String? id,
     required String title,
     required List<String> authors,
     required String description,
@@ -228,11 +277,13 @@ class BookRepositoryImpl implements BookRepository {
     String? publishedDate,
     String? thumbnailUrl,
     String? publisher,
+    Map<String, dynamic>? imageLinks,
   }) async {
     try {
       final response = await _supabase.functions.invoke(
         'add-book', // Matches the folder name in supabase/functions/
         body: {
+          'id': id,
           'title': title,
           'authors': authors,
           'description': description,
@@ -240,6 +291,7 @@ class BookRepositoryImpl implements BookRepository {
           'page_count': pageCount,
           'published_date': publishedDate,
           'thumbnail_url': thumbnailUrl,
+          'imageLinks': imageLinks,
           'publisher': publisher,
         },
       );

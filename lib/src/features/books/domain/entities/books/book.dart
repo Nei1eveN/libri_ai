@@ -15,6 +15,7 @@ class Book with _$Book {
     @Default(0.0) double rating,
     @JsonKey(name: 'published_date') required String? publishedDate,
     String? publisher,
+    Map<String, dynamic>? imageLinks,
   }) = _Book;
 
   factory Book.fromJson(Map<String, dynamic> json) => _$BookFromJson(json);
